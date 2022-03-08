@@ -14,3 +14,4 @@ yarn-error.log
 composer.lock
 /.idea
 /.vscode
+.docker/dbdata
