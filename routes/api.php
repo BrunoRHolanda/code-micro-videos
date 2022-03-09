@@ -20,4 +20,5 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 Route::group(["namespace" => "Api"], function () {
     Route::apiResource("categories", "CategoryController");
+    Route::apiResource("genres", "GenreController");
 });

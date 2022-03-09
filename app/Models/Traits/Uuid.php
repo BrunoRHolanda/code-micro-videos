@@ -2,13 +2,12 @@
 
 namespace App\Models\Traits;
 
+use Str;
+
 trait Uuid
 {
-
-    public static function bootUuid()
+    public static function bootUUid()
     {
-        static::creating(function ($obj) {
-            $obj->id = \Ramsey\Uuid\Uuid::uuid4()->toString();
-        });
+        static::creating(fn ($obj) => $obj->id = Str::orderedUuid());
     }
 }
