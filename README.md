@@ -1,14 +1,22 @@
 # [codeflix] Microserviço de catálogo
 
-Iniciando ambiênte de denvolvimento
+## Info:
 
-```bash
+| Dependência | Versão |
+|-------------|--------|
+| php         | 8.1.3  |
+| alpine      | 3.15   |
+| laravel     | 9.2    |
+
+## Iniciando ambiênte de denvolvimento
+
+~~~bash
 chmod a+x ./.docker/entrypoint.sh
-chown user:user ./.docker/entrypoint.sh
 docker-compose up -d
-```
+~~~
 
-# Criando chave GPG para assinar commits 
+## Criando chave GPG para assinar commits 
+
 ```bash
 gpg --full-generate-key # Gere a chave
 gpg --list-secret-key --keyid-form LONG # Pegue o id da chave gerada
