@@ -6,11 +6,16 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreCategoryRequest;
 use App\Http\Requests\UpdateCategoryRequest;
 use App\Models\Category;
+use Illuminate\Http\Request;
 
 class CategoryController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        if ($request->query('trashed')) {
+            return Category::onlyTrashed()->get();
+        }
+
         return Category::all();
     }
 
