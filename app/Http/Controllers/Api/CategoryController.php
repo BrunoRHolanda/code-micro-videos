@@ -11,7 +11,7 @@ class CategoryController extends Controller
 {
     public function index()
     {
-        //
+        return Category::all();
     }
 
     public function store(StoreCategoryRequest $request)
@@ -21,7 +21,7 @@ class CategoryController extends Controller
 
     public function show(Category $category)
     {
-        //
+        return $category;
     }
 
     public function update(UpdateCategoryRequest $request, Category $category)
