@@ -23,13 +23,7 @@ jobs:
     - name: Setup db volume
       run: docker volume create db_micro_videos_v
     - name: Run db micro videos
-      run: docker run --name c_micro_videos_db \
-        --network app_network \
-        --rm \
-        -itd \
-        --volume db_micro_videos_v:/var/lib/mysql \
-        -e "MYSQL_ROOT_PASSWORD=root" \
-        db_micro_videos:latest
+      run: docker run --name c_micro_videos_db --network app_network --rm -itd --volume db_micro_videos_v:/var/lib/mysql -e "MYSQL_ROOT_PASSWORD=root" db_micro_videos:latest
     - name: Run redis micro videos
       run: docker run --name c_micro_videos_redis \
         --network app-network \
