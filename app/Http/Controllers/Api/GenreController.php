@@ -21,7 +21,11 @@ class GenreController extends Controller
 
     public function store(StoreGenreRequest $request)
     {
-        return Genre::create($request->all());
+        $genre = Genre::create($request->all());
+
+        $genre->refresh();
+
+        return $genre;
     }
 
     public function show(Genre $genre)
