@@ -18,20 +18,16 @@ WORKDIR /var/www
 
 RUN rm -rf /var/www/html && ln -s public html
 
-USER www-data
-
 COPY . .
-
-RUN composer install
 
 RUN chmod a+x .docker/entrypoint.sh
 RUN chmod 777 -R storage/
+RUN -R www-data:www-data .
 
-ENTRYPOINT [
-    "dockerize",
-    "-template ./.docker/app/.env:.env",
-    "-template ./.docker/app/.env.testing:.env.testing",
-    "-wait tcp://db:3306",
-    "-timeout 40s",
-    "./.docker/entrypoint.sh"
-]
+USER www-data
+
+RUN composer install
+RUN php artisan key:generate
+RUN php artisan migrate
+
+ENTRYPOINT ["php-fpm"]
