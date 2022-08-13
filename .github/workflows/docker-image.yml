@@ -21,8 +21,7 @@ jobs:
     - name: Setup network
       run: docker network create -d bridge app-network
     - name: Run app micro videos
-      run: docker run app-micro-videos:latest \
-        --name micro-videos-app \
+      run: docker run --name micro-videos-app \
         --network app-network \
         --rm \
         -itd \
@@ -33,22 +32,25 @@ jobs:
         -e "_DB_DATABASE_TEST=code_micro_videos_test" \
         -e "_DB_USERNAME=root" \
         -e "_DB_PASSWORD=root" \
-        --entrypoint dockerize -template ./.docker/app/.env:.env -template ./.docker/app/.env.testing:.env.testing -wait tcp://db:3306 -timeout 40s ./.docker/entrypoint.sh
+        --entrypoint dockerize -template ./.docker/app/.env:.env -template ./.docker/app/.env.testing:.env.testing -wait tcp://db:3306 -timeout 40s ./.docker/entrypoint.sh \
+        app-micro-videos:latest
     - name: Run db micro videos
-      run: docker run app-micro-videos:latest \
-        --name micro-videos-db \
+      run: docker run --name micro-videos-db \
         --network app-network \
         --rm \
         -itd \
         --restart=always \
         --volume ./.docker/dbdata:/var/lib/mysql \
-        -e "MYSQL_ROOT_PASSWORD=root"
+        -e "MYSQL_ROOT_PASSWORD=root" \
+        app-micro-videos:latest
     - name: Run redis micro videos
-      run: docker run redis:alpine \
-        --name micro-videos-redis \
+      run: docker run --name micro-videos-redis \
         --network app-network \
         --rm \
         -itd \
         --restart=always
+        redis:alpine
+    - name: Run composer install
+      run: docker exec micro-videos-app composer install
     - name: Run tests
       run: docker exec micro-videos-app php artisan test
