@@ -25,7 +25,7 @@ jobs:
     - name: Run db micro videos
       run: docker run --name c_micro_videos_db --network app_network --rm -itd --volume db_micro_videos_v:/var/lib/mysql -e "MYSQL_ROOT_PASSWORD=root" db_micro_videos:latest
     - name: Run redis micro videos
-      run: docker run --name c_micro_videos_redis --network app-network --rm -itd redis:alpine
+      run: docker run --name c_micro_videos_redis --network app_network --rm -itd redis:alpine
     - name: Run app micro videos
       run: docker run --name c_micro_videos_app --network app_network --rm -itd -e "_DB_HOST=db" -e "_DB_DATABASE=code_micro_videos" -e "_DB_DATABASE_TEST=code_micro_videos_test" -e "_DB_USERNAME=root" -e "_DB_PASSWORD=root" --entrypoint="dockerize -template ./.docker/app/.env:.env -template ./.docker/app/.env.testing:.env.testing -wait tcp://db:3306 -timeout 40s ./.docker/entrypoint.sh" app_micro_videos:latest
     - name: Run composer install
