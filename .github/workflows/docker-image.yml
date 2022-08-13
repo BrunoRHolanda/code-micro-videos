@@ -1,0 +1,54 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Build app micro videos
+      run: docker build . --file Dockerfile --tag app-micro-videos:latest
+    - name: Build db micro videos
+      run: docker build .docker/mysql --file Dockerfile --tag db-micro-videos:latest
+    - name: Setup network
+      run: docker network create -d bridge app-network
+    - name: Run app micro videos
+      run: docker run app-micro-videos:latest \
+        --name micro-videos-app \
+        --network app-network \
+        --rm \
+        -itd \
+        --restart=always \
+        --volume .:/var/www \
+        -e "_DB_HOST=db" \
+        -e "_DB_DATABASE=code_micro_videos" \
+        -e "_DB_DATABASE_TEST=code_micro_videos_test" \
+        -e "_DB_USERNAME=root" \
+        -e "_DB_PASSWORD=root" \
+        --entrypoint dockerize -template ./.docker/app/.env:.env -template ./.docker/app/.env.testing:.env.testing -wait tcp://db:3306 -timeout 40s ./.docker/entrypoint.sh
+    - name: Run db micro videos
+      run: docker run app-micro-videos:latest \
+        --name micro-videos-db \
+        --network app-network \
+        --rm \
+        -itd \
+        --restart=always \
+        --volume ./.docker/dbdata:/var/lib/mysql \
+        -e "MYSQL_ROOT_PASSWORD=root"
+    - name: Run redis micro videos
+      run: docker run redis:alpine \
+        --name micro-videos-redis \
+        --network app-network \
+        --rm \
+        -itd \
+        --restart=always
+    - name: Run tests
+      run: docker exec micro-videos-app php artisan test
