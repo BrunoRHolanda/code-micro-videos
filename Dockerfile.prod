@@ -20,8 +20,4 @@ RUN rm -rf /var/www/html && ln -s public html
 
 COPY . .
 
-RUN chmod a+x .docker/entrypoint.sh
-RUN chmod 777 -R storage/
-RUN chown -R www-data:www-data .
-
 USER www-data
