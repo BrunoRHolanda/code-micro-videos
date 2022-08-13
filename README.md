@@ -1,6 +1,7 @@
 # [codeflix] Microserviço de catálogo
 
 ## Info:
+<img src="https://github.com/BrunoRHolanda/code-micro-videos/actions/workflows/docker-image.yml/badge.svg" />
 
 | Dependência | Versão |
 |-------------|--------|
