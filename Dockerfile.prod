@@ -21,3 +21,5 @@ RUN rm -rf /var/www/html && ln -s public html
 COPY . .
 
 USER www-data
+
+ENTRYPOINT["php-fpm"]
