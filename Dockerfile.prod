@@ -22,7 +22,7 @@ COPY . .
 
 RUN chmod a+x .docker/entrypoint.sh
 RUN chmod 777 -R storage/
-RUN -R www-data:www-data .
+RUN chown -R www-data:www-data .
 
 USER www-data
 
