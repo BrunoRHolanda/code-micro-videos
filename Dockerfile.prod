@@ -25,10 +25,3 @@ RUN chmod 777 -R storage/
 RUN chown -R www-data:www-data .
 
 USER www-data
-
-RUN dockerize -template ./.docker/app/.env:.env -template ./.docker/app/.env.testing:.env.testing
-RUN composer install
-RUN php artisan key:generate
-RUN php artisan migrate
-
-ENTRYPOINT ["php-fpm"]
