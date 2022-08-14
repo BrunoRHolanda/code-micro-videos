@@ -7,10 +7,11 @@ use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Support\Facades\Lang;
 use Illuminate\Testing\TestResponse;
 use Tests\TestCase;
+use Tests\Traits\TestValidations;
 
 class CategoryControllerTest extends TestCase
 {
-    use DatabaseMigrations;
+    use DatabaseMigrations, TestValidations;
 
     public function testIndex()
     {
@@ -37,7 +38,6 @@ class CategoryControllerTest extends TestCase
     public function testInvalidationData()
     {
         $response = $this->json('POST', route('categories.store'), []);
-
         $this->assertValidationRequired($response);
 
         $category = Category::factory()->create();
@@ -54,24 +54,17 @@ class CategoryControllerTest extends TestCase
 
     protected function assertValidationMaxString(TestResponse $response)
     {
-        $response
-            ->assertStatus(422)
-            ->assertJsonValidationErrors(['name'])
-            ->assertJsonMissingValidationErrors(['is_active'])
-            ->assertJsonFragment([
-                Lang::get('validation.max.string', ['attribute' => 'name', 'max' => 255])
-            ]);
+        $this->assertInvalidationFields(
+            $response,
+            ['name'],
+            'max.string',
+            ['max' => 255]
+        );
     }
 
     protected function assertValidationRequired(TestResponse $response)
     {
-        $response
-            ->assertStatus(422)
-            ->assertJsonValidationErrors(['name'])
-            ->assertJsonMissingValidationErrors(['is_active'])
-            ->assertJsonFragment([
-                Lang::get('validation.required', ['attribute' => 'name'])
-            ]);
+        $this->assertInvalidationFields($response, ['name'], 'required');
     }
 
     public function testStore(): void
