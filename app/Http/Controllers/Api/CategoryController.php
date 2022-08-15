@@ -8,26 +8,8 @@ use App\Http\Requests\UpdateCategoryRequest;
 use App\Models\Category;
 use Illuminate\Http\Request;
 
-class CategoryController extends Controller
+class CategoryController extends BasicCrudController
 {
-    public function index(Request $request)
-    {
-        if ($request->query('trashed')) {
-            return Category::onlyTrashed()->get();
-        }
-
-        return Category::all();
-    }
-
-    public function store(StoreCategoryRequest $request)
-    {
-        $category = Category::create($request->all());
-
-        $category->refresh();
-
-        return $category;
-    }
-
     public function show(Category $category)
     {
         return $category;
@@ -45,5 +27,19 @@ class CategoryController extends Controller
         $category->delete();
 
         return response()->noContent();
+    }
+
+    protected function model()
+    {
+        return Category::class;
+    }
+
+    protected function rulesStore()
+    {
+        return [
+            "name" => "required|string|max:255",
+            "description" => "string|max:255",
+            "is_active" => "boolean"
+        ];
     }
 }
