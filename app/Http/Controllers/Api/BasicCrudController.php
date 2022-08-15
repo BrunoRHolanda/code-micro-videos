@@ -12,6 +12,7 @@ abstract class BasicCrudController extends Controller
 {
     protected abstract function model();
     protected abstract function rulesStore();
+    protected abstract function rulesUpdate();
 
     public function index()
     {
@@ -27,5 +28,25 @@ abstract class BasicCrudController extends Controller
         $entity->refresh();
 
         return $entity;
+    }
+
+    public function update(Request $request, string $id)
+    {
+        $entity = $this->findOrFail($id);
+
+        $validated = $this->validate($request, $this->rulesUpdate());
+
+        $entity->update($validated);
+
+        $entity->refresh();
+
+        return $entity;
+    }
+
+    protected function findOrFail(string $id)
+    {
+        $key = (new ($this->model()))->getRouteKeyName();
+
+        return $this->model()::where($key, '=', $id)->firstOrFail();
     }
 }

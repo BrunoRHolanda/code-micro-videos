@@ -15,13 +15,6 @@ class CategoryController extends BasicCrudController
         return $category;
     }
 
-    public function update(UpdateCategoryRequest $request, Category $category)
-    {
-        $category->update($request->all());
-
-        return $category;
-    }
-
     public function destroy(Category $category)
     {
         $category->delete();
@@ -38,6 +31,15 @@ class CategoryController extends BasicCrudController
     {
         return [
             "name" => "required|string|max:255",
+            "description" => "string|max:255",
+            "is_active" => "boolean"
+        ];
+    }
+
+    protected function rulesUpdate()
+    {
+        return [
+            "name" => "string|max:255",
             "description" => "string|max:255",
             "is_active" => "boolean"
         ];
