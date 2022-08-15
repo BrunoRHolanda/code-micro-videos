@@ -2,48 +2,29 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
-use App\Http\Requests\StoreGenreRequest;
-use App\Http\Requests\UpdateGenreRequest;
 use App\Models\Genre;
-use Illuminate\Http\Request;
 
-class GenreController extends Controller
+class GenreController extends BasicCrudController
 {
-    public function index(Request $request)
-    {
-        if ($request->query('trashed')) {
-            return Genre::onlyTrashed()->get();
-        }
 
-        return Genre::all();
+    protected function model()
+    {
+        return Genre::class;
     }
 
-    public function store(StoreGenreRequest $request)
+    protected function rulesStore()
     {
-        $genre = Genre::create($request->all());
-
-        $genre->refresh();
-
-        return $genre;
+        return [
+            'name' => 'required|string|max:255',
+            'is_active' => 'boolean',
+        ];
     }
 
-    public function show(Genre $genre)
+    protected function rulesUpdate()
     {
-        return $genre;
-    }
-
-    public function update(UpdateGenreRequest $request, Genre $genre)
-    {
-        $genre->update($request->all());
-
-        return $genre;
-    }
-
-    public function destroy(Genre $genre)
-    {
-        $genre->delete();
-
-        return response()->noContent();
+        return [
+            'name' => 'string|max:255',
+            'is_active' => 'boolean',
+        ];
     }
 }
