@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\CastMember;
 use Illuminate\Database\Seeder;
 
 class CastMemberSeeder extends Seeder
@@ -14,6 +14,6 @@ class CastMemberSeeder extends Seeder
      */
     public function run()
     {
-        //
+        CastMember::factory()->count(100)->create();
     }
 }

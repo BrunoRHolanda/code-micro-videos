@@ -6,6 +6,10 @@ use Exception;
 use Illuminate\Testing\TestResponse;
 
 trait TestSaves {
+    abstract protected function routeStore();
+    abstract protected function routeUpdate();
+    abstract protected function model();
+
     protected function assertStore(array $sendData, array $testData, array $testDataJson = null)
     {
         /**
