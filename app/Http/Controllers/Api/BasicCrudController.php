@@ -3,10 +3,8 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\StoreCategoryRequest;
-use App\Models\Category;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 abstract class BasicCrudController extends Controller
 {
@@ -17,6 +15,11 @@ abstract class BasicCrudController extends Controller
     public function index()
     {
         return $this->model()::all();
+    }
+
+    public function show(string $id)
+    {
+        return $this->findOrFail($id);
     }
 
     public function store(Request $request)
@@ -41,6 +44,15 @@ abstract class BasicCrudController extends Controller
         $entity->refresh();
 
         return $entity;
+    }
+
+    public function destroy(string $id): Response
+    {
+        $entity = $this->findOrFail($id);
+
+        $entity->delete();
+
+        return response()->noContent();
     }
 
     protected function findOrFail(string $id)
