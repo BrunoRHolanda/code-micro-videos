@@ -24,11 +24,11 @@ class VideoFactory extends Factory
             'opened' => rand(0, 1),
             'rating' => $this->faker->randomElement([Rating::Free, Rating::Ten, Rating::Twelve, Rating::Fourteen, Rating::Sixteen, Rating::Eighteen]),
             'duration' => rand(1, 30),
-            'thumb_file' => null,
+            /*'thumb_file' => null,
             'banner_file' => null,
             'trailer_file' => null,
-            'video_file' => null,
-            'published' => rand(0, 1)
+            'video_file' => null,*/
+            //'published' => rand(0, 1)
         ];
     }
 }
