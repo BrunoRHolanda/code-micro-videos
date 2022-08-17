@@ -6,10 +6,11 @@ use App\Models\CastMember;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Tests\TestCase;
 use Tests\Traits\TestSaves;
+use Tests\Traits\TestValidations;
 
 class CastMemberControllerTest extends TestCase
 {
-    use DatabaseMigrations, TestSaves;
+    use DatabaseMigrations, TestSaves, TestValidations;
 
     protected CastMember $castMember;
 
@@ -35,6 +36,46 @@ class CastMemberControllerTest extends TestCase
         $response
             ->assertStatus(200)
             ->assertJson($this->castMember->toArray());
+    }
+
+    public function testFieldNameValidation()
+    {
+        $missingNameInDataValidation = [
+            'type' => 1
+        ];
+
+        $nameWitchNumberInDataValidation = [
+            'name' => 123,
+            'type' => 1
+        ];
+
+        $bigStringInFieldNameToDataValidation = [
+            'name' => str_repeat('a', 300),
+            'type' => 1
+        ];
+
+        $expectedInvalidFields = [
+            'name'
+        ];
+
+        $this->assertValidationErrorsInStore(
+            $missingNameInDataValidation,
+            $expectedInvalidFields,
+            'required'
+        );
+        $this->assertValidationErrorsInStore(
+            $nameWitchNumberInDataValidation,
+            $expectedInvalidFields,
+            'string'
+        );
+        $this->assertValidationErrorsInStore(
+            $bigStringInFieldNameToDataValidation,
+            $expectedInvalidFields,
+            'max.string',
+            [
+                'max' => 255
+            ]
+        );
     }
 
     public function testStore(): void
