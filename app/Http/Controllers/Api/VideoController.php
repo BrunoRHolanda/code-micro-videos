@@ -2,16 +2,20 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
-use App\Http\Requests\StoreVideoRequest;
-use App\Http\Requests\UpdateVideoRequest;
 use App\Models\Video;
 use App\Rules\InVideoRating;
+use App\Rules\RelatedWithCategory;
+use App\Rules\RelatedWithGenre;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use JetBrains\PhpStorm\ArrayShape;
+use Throwable;
 
 class VideoController extends BasicCrudController
 {
+    /**
+     * @throws Throwable
+     */
     public function store(Request $request)
     {
         $videoCommitted = DB::transaction(function () use ($request) {
@@ -31,6 +35,9 @@ class VideoController extends BasicCrudController
         return $videoCommitted;
     }
 
+    /**
+     * @throws Throwable
+     */
     public function update(Request $request, string $id)
     {
         $videoCommitted = DB::transaction(function () use($request, $id) {
@@ -55,12 +62,22 @@ class VideoController extends BasicCrudController
         return $videoCommitted;
     }
 
-    protected function model()
+    protected function model(): string
     {
         return Video::class;
     }
 
-    protected function rulesStore()
+    #[ArrayShape([
+        'title' => "string",
+        'description' => "string",
+        'year_launched' => "string",
+        'opened' => "string",
+        'rating' => "array",
+        'duration' => "string",
+        'categories' => "string",
+        'genres' => "string"
+    ])]
+    protected function rulesStore(): array
     {
         return [
             'title' => 'required|max:255',
@@ -69,12 +86,32 @@ class VideoController extends BasicCrudController
             'opened' => 'boolean',
             'rating' => ['required', new InVideoRating()],
             'duration' => 'required|integer',
-            'categories' => 'required|array|exists:categories,id',
-            'genres' => 'required|array|exists:genres,id'
+            'categories' => [
+                'required',
+                'array',
+                'exists:categories,id',
+                new RelatedWithGenre()
+            ],
+            'genres' => [
+                'required ',
+                'array',
+                'exists:genres,id',
+                new RelatedWithCategory()
+            ]
         ];
     }
 
-    protected function rulesUpdate()
+    #[ArrayShape([
+        'title' => "string",
+        'description' => "string",
+        'year_launched' => "string",
+        'opened' => "string",
+        'rating' => "array",
+        'duration' => "string",
+        'categories' => "string",
+        'genres' => "string"
+    ])]
+    protected function rulesUpdate(): array
     {
         return [
             'title' => 'ax:255',
