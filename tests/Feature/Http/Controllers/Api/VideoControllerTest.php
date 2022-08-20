@@ -3,15 +3,18 @@
 namespace Tests\Feature\Http\Controllers\Api;
 
 use App\Models\CastMember;
+use App\Models\Category;
 use App\Models\Enums\Rating;
+use App\Models\Genre;
 use App\Models\Video;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Tests\TestCase;
 use Tests\Traits\TestSaves;
+use Tests\Traits\TestValidations;
 
 class VideoControllerTest extends TestCase
 {
-    use DatabaseMigrations, TestSaves;
+    use DatabaseMigrations, TestSaves, TestValidations;
 
     protected Video $video;
 
@@ -41,6 +44,17 @@ class VideoControllerTest extends TestCase
 
     public function testStore(): void
     {
+        /**
+         * @var Category $category
+         */
+        $category = Category::factory()->create();
+        /**
+         * @var Genre $genre
+         */
+        $genre = Genre::factory()->create();
+
+        $genre->categories()->sync([$category->id]);
+
         $data = [
             'title' => 'asd',
             'description' => 'asdasdasdasdasd',
@@ -49,8 +63,13 @@ class VideoControllerTest extends TestCase
             'rating' => Rating::Free,
             'duration' => rand(1, 30),
         ];
+        $dependencies = [
+            'categories' => [$category->id],
+            'genres' => [$genre->id]
+        ];
+
         $this->assertStore(
-            $data,
+            $data + $dependencies,
             $data + ['deleted_at' => null]
         );
 
@@ -62,7 +81,72 @@ class VideoControllerTest extends TestCase
             'rating' => Rating::Eighteen,
             'duration' => rand(1, 30),
         ];
-        $this->assertStore($data, $data + ['deleted_at' => null]);
+
+        $this->assertStore($data + $dependencies, $data + ['deleted_at' => null]);
+    }
+
+    public function testCategoryValidation()
+    {
+        /**
+         * @var Category $category
+         * @var Category $category2
+         */
+        $category = Category::factory()->create();
+        $category2 = Category::factory()->create();
+        /**
+         * @var Genre $genre
+         */
+        $genre = Genre::factory()->create();
+
+        $genre->categories()->sync([$category->id]);
+
+        $data = [
+            'title' => 'asd',
+            'description' => 'asdasdasdasdasd',
+            'year_launched' => rand(1985, 2022),
+            'opened' => true,
+            'rating' => Rating::Free,
+            'duration' => rand(1, 30),
+            'categories' => [$category->id, $category2->id],
+            'genres' => [$genre->id]
+        ];
+
+        $response = $this->postJson($this->routeStore(), $data);
+
+        $response->assertStatus(422)
+            ->assertJsonFragment(['Past categories must be related to some past genre']);
+    }
+
+    public function testGenreValidation()
+    {
+        /**
+         * @var Category $category
+         */
+        $category = Category::factory()->create();
+        /**
+         * @var Genre $genre
+         * @var Genre $genre2
+         */
+        $genre = Genre::factory()->create();
+        $genre2 = Genre::factory()->create();
+
+        $genre->categories()->sync([$category->id]);
+
+        $data = [
+            'title' => 'asd',
+            'description' => 'asdasdasdasdasd',
+            'year_launched' => rand(1985, 2022),
+            'opened' => true,
+            'rating' => Rating::Free,
+            'duration' => rand(1, 30),
+            'categories' => [$category->id],
+            'genres' => [$genre->id, $genre2->id]
+        ];
+
+        $response = $this->postJson($this->routeStore(), $data);
+
+        $response->assertStatus(422)
+            ->assertJsonFragment(['Past categories must be related to some past genre.']);
     }
 
     public function testUpdate(): void

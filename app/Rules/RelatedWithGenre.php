@@ -4,13 +4,17 @@ namespace App\Rules;
 
 use App\Models\Category;
 use Illuminate\Contracts\Validation\Rule;
-use Request;
+use Illuminate\Support\Facades\Request;
 
 class RelatedWithGenre implements Rule
 {
     public function passes($attribute, $value): bool
     {
         $genres = Request::input('genres');
+
+        if (!$genres) {
+            return false;
+        }
 
         foreach ($value as $categoryId) {
             /**

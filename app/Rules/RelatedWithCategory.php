@@ -13,6 +13,10 @@ class RelatedWithCategory implements Rule
     {
         $categories = Request::input('categories');
 
+        if (!$categories) {
+            return false;
+        }
+
         foreach ($value as $genreId) {
             /**
              * @var Genre $genre
@@ -34,6 +38,6 @@ class RelatedWithCategory implements Rule
 
     public function message(): string
     {
-        return 'The validation error message.';
+        return 'Past categories must be related to some past genre.';
     }
 }

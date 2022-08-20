@@ -2,10 +2,9 @@
 
 namespace Tests\Feature\Http\Controllers\Api;
 
+use App\Models\Category;
 use App\Models\Genre;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
-use Illuminate\Support\Facades\Lang;
-use Illuminate\Testing\TestResponse;
 use Tests\TestCase;
 use Tests\Traits\TestSaves;
 use Tests\Traits\TestValidations;
@@ -20,6 +19,8 @@ class GenreControllerTest extends TestCase
     {
         parent::setUp();
         $this->genre = Genre::factory()->create();
+
+        $this->genre->categories()->sync([Category::factory()->create()->id]);
     }
 
     public function testIndex()
@@ -78,22 +79,30 @@ class GenreControllerTest extends TestCase
 
     public function testStore(): void
     {
-        $data = [
-            'name' => 'test'
-        ];
-        $this->assertStore(
-            $data,
-            $data + [
-                'is_active' => 1,
-                'deleted_at' => null
-            ]
-        );
+        $category = Category::factory()->create();
 
         $data = [
             'name' => 'test',
+            'categories' => [$category->id]
+        ];
+        $expected = [
+            'name' => $data['name'],
+            'is_active' => 1,
+            'deleted_at' => null
+        ];
+        $this->assertStore($data, $expected);
+
+        $data = [
+            'name' => 'test',
+            'categories' => [$category->id],
             'is_active' => 0
         ];
-        $this->assertStore($data, $data + ['deleted_at' => null]);
+        $expected = [
+            'name' => $data['name'],
+            'is_active' => $data['is_active'],
+            'deleted_at' => null
+        ];
+        $this->assertStore($data, $expected);
     }
 
     public function testUpdate(): void
@@ -101,13 +110,15 @@ class GenreControllerTest extends TestCase
         $this->genre = Genre::factory()->create([
             'is_active' => 0
         ]);
+        $this->genre->categories()->sync([Category::factory()->create()->id]);
+
         $data = [
-            'name' => 'test edited'
+            'name' => 'test',
+            'is_active' => 1
         ];
         $this->assertUpdate(
             $data,
             $data + [
-                'is_active' => 0,
                 'deleted_at' => null
             ]
         );
