@@ -4,6 +4,7 @@ namespace Tests\Traits;
 
 use Exception;
 use Illuminate\Testing\TestResponse;
+use ReflectionClass;
 
 trait TestSaves {
     abstract protected function routeStore();
@@ -44,6 +45,9 @@ trait TestSaves {
     {
         $model = $this->model();
         $table = (new $model)->getTable();
+        $reflection = new ReflectionClass($model);
+        $fillable = $reflection->getProperty('fillable')->getValue(new ($model));
+        $testData = collect($testData)->only($fillable)->toArray();
 
         $this->assertDatabaseHas(
             $table,

@@ -38,25 +38,40 @@ class CategoryControllerTest extends TestCase
             ->assertJson($this->category->toArray());
     }
 
-    public function testInvalidationData()
+    public function testFieldNameValidation()
     {
-        $data = [
-            'name' => ''
-        ];
-        $this->assertInvalidationInStoreAction($data, 'required');
-        $this->assertInvalidationInUpdateAction($data, 'string');
+        $missingNameInDataValidation = [];
 
-        $data = [
-            'name' => str_repeat('a', 256),
+        $nameWitchNumberInDataValidation = [
+            'name' => 123,
         ];
-        $this->assertInvalidationInStoreAction($data, 'max.string', ['max' => 255]);
-        $this->assertInvalidationInUpdateAction($data, 'max.string', ['max' => 255]);
 
-        $data = [
-            'is_active' => 'a'
+        $bigStringInFieldNameToDataValidation = [
+            'name' => str_repeat('a', 300),
         ];
-        $this->assertInvalidationInStoreAction($data, 'boolean');
-        $this->assertInvalidationInUpdateAction($data, 'boolean');
+
+        $expectedInvalidFields = [
+            'name'
+        ];
+
+        $this->assertValidationErrorsInStore(
+            $missingNameInDataValidation,
+            $expectedInvalidFields,
+            'required'
+        );
+        $this->assertValidationErrorsInStore(
+            $nameWitchNumberInDataValidation,
+            $expectedInvalidFields,
+            'string'
+        );
+        $this->assertValidationErrorsInStore(
+            $bigStringInFieldNameToDataValidation,
+            $expectedInvalidFields,
+            'max.string',
+            [
+                'max' => 255
+            ]
+        );
     }
 
     public function testStore(): void

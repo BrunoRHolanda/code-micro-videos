@@ -7,41 +7,64 @@ use Illuminate\Testing\TestResponse;
 
 trait TestValidations
 {
-    protected function assertInvalidationInStoreAction(
-        array $data,
+    protected function assertValidationErrorsInStore(
+        array $dataToStore,
+        array $expectedInvalidFields,
         string $rule,
         array $rulesParams = []
-    ) {
-        $response = $this->json('POST', $this->routeStore(), $data);
-        $fields = array_keys($data);
-        $this->assertInvalidationFields($response, $fields, $rule, $rulesParams);
+    ): void {
+        $response = $this->json('POST', $this->routeStore(), $dataToStore);
+
+        $this->assertValidationErrors(
+            $response,
+            $expectedInvalidFields,
+            $rule,
+            $rulesParams
+        );
     }
 
-    protected function assertInvalidationInUpdateAction(
-        array $data,
+    protected function assertValidationErrorsInUpdate(
+        array $dataToUpdate,
+        array $expectedInvalidFields,
         string $rule,
         array $rulesParams = []
-    ) {
-        $response = $this->json('PUT', $this->routeUpdate(), $data);
-        $fields = array_keys($data);
-        $this->assertInvalidationFields($response, $fields, $rule, $rulesParams);
+    ): void {
+        $response = $this->json('PUT', $this->routeUpdate(), $dataToUpdate);
+
+        $this->assertValidationErrors(
+            $response,
+            $expectedInvalidFields,
+            $rule,
+            $rulesParams
+        );
     }
 
-    protected function assertInvalidationFields(
+    protected function assertValidationErrors(
         TestResponse $response,
-        array $fields,
+        array $invalidFields,
         string $rule,
         array $ruleParams = []
-    ) {
+    ): void {
         $response
             ->assertStatus(422)
-            ->assertJsonValidationErrors($fields);
+            ->assertJsonValidationErrors($invalidFields);
 
-        foreach ($fields as $field) {
-            $fieldName = str_replace('_', ' ', $field);
-            $response->assertJsonFragment([
-                Lang::get("validation.{$rule}", ['attribute' => $fieldName] + $ruleParams)
-            ]);
+        foreach ($invalidFields as $invalidField) {
+            $fieldName = str_replace('_', ' ', $invalidField);
+            $expectedMessage = $this->getValidationRuleMessage(
+                $rule,
+                ['attribute' => $fieldName] + $ruleParams
+            );
+
+            $errors = $response->json("errors");
+
+            $this->assertArrayHasKey($invalidField, $errors);
+            $this->assertContains($expectedMessage, $errors[$invalidField]);
         }
+    }
+
+    private function getValidationRuleMessage(string $rule, array $replace): string
+    {
+        return Lang::get("validation.{$rule}", $replace);
     }
 }

@@ -19,7 +19,11 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::group(["namespace" => "Api"], function () {
+    $exceptCreateAndEdit = [
+        "except" => ["create", "edit"]
+    ];
     Route::apiResource("categories", "CategoryController");
     Route::apiResource("genres", "GenreController");
     Route::apiResource("cast-members", "CastMemberController");
+    Route::apiResource("videos", "VideoController", $exceptCreateAndEdit);
 });

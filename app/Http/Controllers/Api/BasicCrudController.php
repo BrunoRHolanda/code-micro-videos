@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Validation\ValidationException;
 
 abstract class BasicCrudController extends Controller
 {
@@ -22,6 +23,9 @@ abstract class BasicCrudController extends Controller
         return $this->findOrFail($id);
     }
 
+    /**
+     * @throws ValidationException
+     */
     public function store(Request $request)
     {
         $validated = $this->validate($request, $this->rulesStore());
@@ -33,6 +37,9 @@ abstract class BasicCrudController extends Controller
         return $entity;
     }
 
+    /**
+     * @throws ValidationException
+     */
     public function update(Request $request, string $id)
     {
         $entity = $this->findOrFail($id);

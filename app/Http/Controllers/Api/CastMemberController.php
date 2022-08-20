@@ -2,20 +2,19 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
-use App\Http\Requests\StoreCastMemberRequest;
-use App\Http\Requests\UpdateCastMemberRequest;
 use App\Models\CastMember;
+use JetBrains\PhpStorm\ArrayShape;
 
 class CastMemberController extends BasicCrudController
 {
 
-    protected function model()
+    protected function model(): string
     {
         return CastMember::class;
     }
 
-    protected function rulesStore()
+    #[ArrayShape(['name' => "string", 'type' => "string"])]
+    protected function rulesStore(): array
     {
         return [
             'name' => 'required|string|max:255',
@@ -23,7 +22,8 @@ class CastMemberController extends BasicCrudController
         ];
     }
 
-    protected function rulesUpdate()
+    #[ArrayShape(['name' => "string", 'type' => "string"])]
+    protected function rulesUpdate(): array
     {
         return [
             'name' => 'string|max:255',
