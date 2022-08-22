@@ -64,7 +64,7 @@ class GenreController extends BasicCrudController
     {
         return [
             'name' => 'required|string|max:255',
-            'categories' => 'required|array|exists:categories,id',
+            'categories' => 'required|array|exists:categories,id,deleted_at,NULL',
             'is_active' => 'boolean',
         ];
     }
@@ -74,7 +74,7 @@ class GenreController extends BasicCrudController
     {
         return [
             'name' => 'string|max:255',
-            'categories' => 'array|exists:categories,id',
+            'categories' => 'array|exists:categories,id,deleted_at,NULL',
             'is_active' => 'boolean',
         ];
     }
