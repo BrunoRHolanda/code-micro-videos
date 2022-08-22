@@ -3,6 +3,7 @@
 namespace Tests\Unit\Models;
 
 use App\Models\Enums\Rating;
+use App\Models\Traits\UploadFiles;
 use App\Models\Video;
 use App\Models\Traits\Uuid;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -24,6 +25,7 @@ class VideoUnitTest extends TestCase
             'opened',
             'rating',
             'duration',
+            'video_file',
         ];
         $this->assertPropertyValue('fillable', $expected);
     }
@@ -52,8 +54,10 @@ class VideoUnitTest extends TestCase
         $expected = [
             HasFactory::class,
             SoftDeletes::class,
-            Uuid::class
+            Uuid::class,
+            UploadFiles::class
         ];
+
         $this->assertImplementedTraits($expected);
     }
 

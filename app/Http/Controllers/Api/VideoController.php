@@ -13,55 +13,6 @@ use Throwable;
 
 class VideoController extends BasicCrudController
 {
-    /**
-     * @throws Throwable
-     */
-    public function store(Request $request)
-    {
-        $videoCommitted = DB::transaction(function () use ($request) {
-            /**
-             * @var Video $video
-             */
-            $video = parent::store($request);
-
-            $video->categories()->sync($request->input('categories'));
-            $video->genres()->sync($request->input('genres'));
-
-            return $video;
-        });
-
-        $videoCommitted->refresh();
-
-        return $videoCommitted;
-    }
-
-    /**
-     * @throws Throwable
-     */
-    public function update(Request $request, string $id)
-    {
-        $videoCommitted = DB::transaction(function () use($request, $id) {
-            /**
-             * @var Video $video
-             */
-            $video = parent::update($request, $id);
-
-            if ($request->has('categories')) {
-                $video->categories()->sync($request->input('categories'));
-            }
-
-            if ($request->has('genres')) {
-                $video->genres()->sync($request->input('genres'));
-            }
-
-            return $video;
-        });
-
-        $videoCommitted->refresh();
-
-        return $videoCommitted;
-    }
-
     protected function model(): string
     {
         return Video::class;
@@ -75,7 +26,8 @@ class VideoController extends BasicCrudController
         'rating' => "array",
         'duration' => "string",
         'categories' => "string",
-        'genres' => "string"
+        'genres' => "string",
+        'video_file' => "string",
     ])]
     protected function rulesStore(): array
     {
@@ -89,15 +41,16 @@ class VideoController extends BasicCrudController
             'categories' => [
                 'required',
                 'array',
-                'exists:categories,id',
+                'exists:categories,id,deleted_at,NULL',
                 new RelatedWithGenre()
             ],
             'genres' => [
                 'required ',
                 'array',
-                'exists:genres,id',
+                'exists:genres,id,deleted_at,NULL',
                 new RelatedWithCategory()
-            ]
+            ],
+            'video_file' => 'file|mimetypes:video/mp4|size:2048'
         ];
     }
 
@@ -120,8 +73,8 @@ class VideoController extends BasicCrudController
             'opened' => 'boolean',
             'rating' => new InVideoRating(),
             'duration' => 'integer',
-            'categories' => 'array|exists:categories,id',
-            'genres' => 'array|exists:genres,id'
+            'categories' => 'array|exists:categories,id,deleted_at,NULL',
+            'genres' => 'array|exists:genres,id,deleted_at,NULL'
         ];
     }
 }
